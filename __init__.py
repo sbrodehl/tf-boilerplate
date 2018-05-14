@@ -51,8 +51,9 @@ class DataSampler(object):
         for ff in self.data_dir.glob("*.mhd"):
             print(ff)
 
-        X = [{"header": '1.mhd', "data": '1.raw', "size": (1, 2, 3), "UID": "123.234.5346546", "elsize": (0.1, 0.2, 0.3)}]
-        Y = [[((1, 2, 3), "LH-3")]]
+        # X = [{"header": '1.mhd', "data": '1.raw', "size": (1, 2, 3), "UID": "123.234.5346546", "elsize": (0.1, 0.2, 0.3)}]
+        X = ["1.mhd"]
+        Y = [["LH-3", "LH-2"]]
 
         # do statistics
 
@@ -92,7 +93,7 @@ class DataSampler(object):
 
         # map filename to data
 
-        x_obj = {"header": '1.mhd', "data": '1.raw', "size": (1, 2, 3), "UID": "123.234.5346546", "elsize": (0.1, 0.2, 0.3)}
+        # x_obj = {"header": '1.mhd', "data": '1.raw', "size": (1, 2, 3), "UID": "123.234.5346546", "elsize": (0.1, 0.2, 0.3)}
 
         # read data from raw file
         data = np.zeros((), dtype=np.float32)
@@ -156,7 +157,7 @@ if __name__ == '__main__':
         print(35 * '#' + ' TRAINING ' + 35 * '#')
         print(80 * '#')
         while not sess.should_stop():
-            cr, srt, label = sess.run(train_batch)
+            data, label, meta = sess.run(train_batch)
             print(label)
 
     with tf.train.SingularMonitoredSession() as sess:
@@ -164,7 +165,7 @@ if __name__ == '__main__':
         print(35 * '#' + ' TESTING ' + 36 * '#')
         print(80 * '#')
         while not sess.should_stop():
-            cr, srt, label = sess.run(test_batch)
+            data, label, meta = sess.run(test_batch)
             print(label)
 
     with tf.train.SingularMonitoredSession() as sess:
@@ -172,5 +173,5 @@ if __name__ == '__main__':
         print(34 * '#' + ' VALIDATION ' + 34 * '#')
         print(80 * '#')
         while not sess.should_stop():
-            cr, srt, label = sess.run(val_batch)
+            data, label, meta = sess.run(val_batch)
             print(label)
