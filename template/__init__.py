@@ -34,16 +34,6 @@ class DataSampler(object):
 
         self._prepare()
 
-        print("####### OSG #######")
-        print("Training    Set: {}".format(len(self.training_set[0])))
-        print("Testing     Set: {}".format(len(self.testing_set[0])))
-        print("Validation  Set: {}".format(len(self.validation_set[0])))
-        print("##########  SUM: {}".format(
-            len(self.validation_set[0])
-            + len(self.testing_set[0])
-            + len(self.training_set[0])
-        ))
-
     def _prepare(self):
         # do some work
 
