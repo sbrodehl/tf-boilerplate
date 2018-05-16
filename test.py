@@ -14,7 +14,8 @@ if __name__ == '__main__':
 
         parser = argparse.ArgumentParser()
         parser.add_argument(
-            "input", type=str, help="input folder"
+            "--datadir", type=str, default="/tmp/tf-boilerplate-data",
+            help="data directory"
         )
         # model
         parser.add_argument(
@@ -36,7 +37,7 @@ if __name__ == '__main__':
         )
         # logging / saving
         parser.add_argument(
-            "--logdir", type=str, default="/tmp/tf.dataset.template.log",
+            "--logdir", type=str, default="/tmp/tf-boilerplate-log",
             help="log folder"
         )
         parser.add_argument(
@@ -51,7 +52,7 @@ if __name__ == '__main__':
 
         # import data
         dataset = importlib.import_module(args.dataset)
-        sampler = dataset.DataSampler(args.input)
+        sampler = dataset.DataSampler(args.datadir)
 
         # import model
         model = importlib.import_module(args.model)
