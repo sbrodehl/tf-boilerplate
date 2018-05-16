@@ -75,18 +75,21 @@ if __name__ == '__main__':
         BATCH_SIZE = 64
         EPOCHS = 1
 
+        # define training dataset
         train_ds = sampler.training()
         train_ds = train_ds.cache().shuffle(buffer_size=NUMEXAMPLES).batch(BATCH_SIZE)
         train_ds = train_ds.repeat(EPOCHS)
-        test_ds = sampler.testing()
-        # val_ds = sampler.validation()
-
         train_iter = train_ds.make_one_shot_iterator()
-        test_iter = test_ds.make_one_shot_iterator()
-        # val_iter = val_ds.make_one_shot_iterator()
-
         train_batch = train_iter.get_next()
+
+        # define test dataset
+        test_ds = sampler.testing()
+        test_iter = test_ds.make_one_shot_iterator()
         test_batch = test_iter.get_next()
+
+        # define validation dataset
+        # val_ds = sampler.validation()
+        # val_iter = val_ds.make_one_shot_iterator()
         # val_batch = val_iter.get_next()
 
         with tf.name_scope("network"):
