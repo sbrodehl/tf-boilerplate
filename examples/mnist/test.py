@@ -5,7 +5,7 @@ import time
 from tqdm import tqdm
 
 from template import *
-from .download import dataset
+from download import dataset
 
 
 class MNISTSampler(DataSampler):
