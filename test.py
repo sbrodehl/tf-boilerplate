@@ -189,5 +189,7 @@ if __name__ == '__main__':
             while not sess.should_stop():
                 _ = sess.run(accuracy)
 
+    # catch KeyboardInterrupt error message
+    # IT WAS INTENTIONAL
     except KeyboardInterrupt:
         pass
