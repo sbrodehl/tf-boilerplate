@@ -1,4 +1,3 @@
-from template import *
 from template.misc import IteratorInitializerHook
 
 import tensorflow as tf
