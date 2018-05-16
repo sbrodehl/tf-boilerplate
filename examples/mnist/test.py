@@ -112,6 +112,10 @@ if __name__ == '__main__':
             optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
             do_train_batch = optimizer.minimize(loss, tf.train.get_or_create_global_step())
 
+        #          #
+        # TRAINING #
+        #          #
+
         # define logging and saver
         log_steps = 2  # log every 2nd step
         save_mins = 5  # save every 5 min
@@ -147,30 +151,39 @@ if __name__ == '__main__':
             hooks=hks,  # list of all hooks
             # checkpoint_dir=logdir  # restores checkpoint and continues training
         ) as sess:
-            print()
             print(80 * '#')
             print('#' + 34 * ' ' + ' TRAINING ' + 34 * ' ' + '#')
             print(80 * '#')
             while not sess.should_stop():
                 _ = sess.run(do_train_batch)
 
-        with tf.train.SingularMonitoredSession() as sess:
-            print()
+        #         #
+        # TESTING #
+        #         #
+
+        # evaluate these tensors periodically
+        logtensors = {
+            "accuracy": accuracy
+        }
+
+        # define all hooks
+        hks = [
+            # hook to get logger output
+            tf.train.LoggingTensorHook(
+                logtensors,
+                every_n_iter=1
+            )
+        ]
+
+        with tf.train.SingularMonitoredSession(
+                hooks=hks,  # list of all hooks
+                checkpoint_dir=logdir  # restores checkpoint
+        ) as sess:
             print(80 * '#')
             print('#' + 34 * ' ' + ' TESTING ' + 35 * ' ' + '#')
             print(80 * '#')
-            accuracy_total = 0
-            pbar = tqdm(total=NUMEXAMPLES / BATCH_SIZE * EPOCHS, desc="Training", leave=True)
             while not sess.should_stop():
-                accuracy_res, _ = sess.run([accuracy, do_train_batch])
-                accuracy_total += accuracy_res
-                pbar.update(1)
-                pbar.set_description('Accuracy %f' % accuracy_res)
-                # print(sess.run(tf.train.get_or_create_global_step()))
-                # print("Accuracy:",accuracy_res)
-        accuracy_total /= pbar.n
-        print()
-        print("Total Test Accuracy:", accuracy_total)
+                _ = sess.run(accuracy)
 
     except KeyboardInterrupt:
         pass
