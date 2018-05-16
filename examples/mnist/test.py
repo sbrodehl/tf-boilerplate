@@ -109,7 +109,7 @@ if __name__ == '__main__':
         with tf.train.SingularMonitoredSession() as sess:
             print()
             print(80 * '#')
-            print('#' + 34 * ' ' + ' TRAINING ' + 35 * ' ' + '#')
+            print('#' + 34 * ' ' + ' TRAINING ' + 34 * ' ' + '#')
             print(80 * '#')
             accuracy_total = 0
             pbar = tqdm(total=NUMEXAMPLES / BATCH_SIZE * EPOCHS, desc="Training", leave=True)
@@ -127,7 +127,7 @@ if __name__ == '__main__':
         with tf.train.SingularMonitoredSession() as sess:
             print()
             print(80 * '#')
-            print('#' + 34 * ' ' + ' TESTING ' + 34 * ' ' + '#')
+            print('#' + 34 * ' ' + ' TESTING ' + 35 * ' ' + '#')
             print(80 * '#')
             accuracy_total = 0
             pbar = tqdm(total=NUMEXAMPLES / BATCH_SIZE * EPOCHS, desc="Training", leave=True)
