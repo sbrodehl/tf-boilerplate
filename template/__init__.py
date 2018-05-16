@@ -16,7 +16,7 @@ from multiprocessing import Pool
 # https://github.com/tensorflow/tensorflow/blob/r1.8/tensorflow/core/example/example.proto
 
 
-class DataSampler(object):
+class BaseDataSampler(object):
     """DataSampler which generates a TensorFlow Dataset object from given 'OSG' input.
     """
 
@@ -62,7 +62,7 @@ class DataSampler(object):
         dataset = tf.data.Dataset.from_tensor_slices(set_)
         dataset = dataset.map(
             lambda x_obj, y_obj: tuple(tf.py_func(
-                self._read_py_function, [x_obj, y_obj], [tf.float32, tf.int32, tf.float32]
+                self._read_py_function, [x_obj, y_obj], [tf.float32, tf.int32]
             ))
         )
         # since the images have all different sizes we crop / pad them
@@ -70,13 +70,13 @@ class DataSampler(object):
         return dataset
 
     def training(self):
-        return len(self.training_set[0]), self._build_dataset(self.training_set)
+        return self._build_dataset(self.training_set)
 
     def testing(self):
-        return len(self.testing_set[0]), self._build_dataset(self.testing_set)
+        return self._build_dataset(self.testing_set)
 
     def validation(self):
-        return len(self.validation_set[0]), self._build_dataset(self.validation_set)
+        return self._build_dataset(self.validation_set)
 
     def _read_py_function(self, x_obj, y_obj):
         # convert to TFRecord?
@@ -89,10 +89,10 @@ class DataSampler(object):
         data = np.zeros((), dtype=np.float32)
         label = np.zeros((), dtype=np.int32)
         meta = np.array([*x_obj["elsize"]], dtype=np.float32)
-        return data, label, meta
+        return data, label
 
     # Use standard TensorFlow operations to resize the image to a fixed shape.
-    def _resize_function(self, data, label, meta):
+    def _resize_function(self, data, label):
 
         # normalize elsize to e.g. (1,1,1)
 
@@ -113,7 +113,7 @@ class DataSampler(object):
         # )
         # srt.set_shape([self.srt_dimension])
         # label.set_shape([self.classes])
-        return data, label, meta
+        return data, label
 
 
 if __name__ == '__main__':
@@ -123,11 +123,11 @@ if __name__ == '__main__':
     parser.add_argument("input", help="input folder")
     args = parser.parse_args()
 
-    sampler = DataSampler(args.input)
+    sampler = BaseDataSampler(args.input)
 
-    _, train_ds = sampler.training()
-    _, test_ds = sampler.testing()
-    _, val_ds = sampler.validation()
+    train_ds = sampler.training()
+    test_ds = sampler.testing()
+    val_ds = sampler.validation()
 
     train_iter = train_ds.make_one_shot_iterator()
     test_iter = test_ds.make_one_shot_iterator()

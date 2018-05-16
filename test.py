@@ -1,20 +1,5 @@
 from template import *
 from template.misc import IteratorInitializerHook
-from examples.mnist.download import dataset
-
-
-class MNISTSampler(DataSampler):
-
-    def _prepare(self):
-        pass
-
-    def training(self):
-        """tf.data.Dataset object for MNIST training data."""
-        return dataset(str(self.data_dir), 'train-images-idx3-ubyte', 'train-labels-idx1-ubyte')
-
-    def testing(self):
-        """tf.data.Dataset object for MNIST test data."""
-        return dataset(str(self.data_dir), 't10k-images-idx3-ubyte', 't10k-labels-idx1-ubyte')
 
 
 def network(data, labels_one_hot):
@@ -60,16 +45,21 @@ if __name__ == '__main__':
 
     try:
         import argparse
+        import importlib
 
         # enable tf logging, show DEBUG output
         tf.logging.set_verbosity(tf.logging.DEBUG)
 
         parser = argparse.ArgumentParser()
-        parser.add_argument("input", help="input folder")
-        parser.add_argument("--logdir", help="log folder")
+        parser.add_argument("input", type=str, help="input folder")
+        parser.add_argument("--logdir", type=str, help="log folder")
+        parser.add_argument("--dataset", type=str, default="examples.mnist", help="dataset used")
         args = parser.parse_args()
 
-        sampler = MNISTSampler(args.input)
+        # import data
+        dataset = importlib.import_module(args.dataset)
+        sampler = dataset.DataSampler(args.input)
+
         NUMEXAMPLES = 60000
         BATCH_SIZE = 64
         EPOCHS = 1
