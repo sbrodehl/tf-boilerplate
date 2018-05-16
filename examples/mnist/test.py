@@ -1,11 +1,6 @@
-import sys, os
-
-sys.path.insert(0, os.path.abspath('.'))
-import time
-from tqdm import tqdm
-
 from template import *
-from download import dataset
+from template.misc import IteratorInitializerHook
+from examples.mnist.download import dataset
 
 
 class MNISTSampler(DataSampler):
@@ -83,29 +78,36 @@ if __name__ == '__main__':
         train_ds = sampler.training()
         train_ds = train_ds.cache().shuffle(buffer_size=NUMEXAMPLES).batch(BATCH_SIZE)
         train_ds = train_ds.repeat(EPOCHS)
-        train_iter = train_ds.make_one_shot_iterator()
-        train_batch = train_iter.get_next()
 
         # define test dataset
         test_ds = sampler.testing()
-        test_iter = test_ds.make_one_shot_iterator()
-        test_batch = test_iter.get_next()
+        test_ds = test_ds.batch(1)
 
         # define validation dataset
         # val_ds = sampler.validation()
-        # val_iter = val_ds.make_one_shot_iterator()
-        # val_batch = val_iter.get_next()
+
+        # A reinitializable iterator is defined by its structure.
+        # We could use the `output_types` and `output_shapes` properties of
+        # either `training dataset` or `validation dataset` here,
+        # because they are compatible (the same type and shape)
+        iterator = tf.data.Iterator.from_structure(train_ds.output_types,
+                                                   train_ds.output_shapes)
+        data = iterator.get_next()
+
+        # define all iterator initializer
+        training_init_op = iterator.make_initializer(train_ds)
+        testing_init_op = iterator.make_initializer(train_ds)  # here we reuse the train_ds
 
         with tf.name_scope("network"):
-            net = network(*train_batch)
+            net = network(*data)
 
         with tf.name_scope("loss"):
-            loss = lossfn(net, *train_batch)
+            loss = lossfn(net, *data)
 
         with tf.name_scope("train"):
             with tf.name_scope('accuracy'):
                 with tf.name_scope('correct_prediction'):
-                    correct_prediction = tf.equal(tf.argmax(net, 1), tf.cast(train_batch[1], tf.int64))
+                    correct_prediction = tf.equal(tf.argmax(net, 1), tf.cast(data[1], tf.int64))
                 # define a summary for the accuracy
                 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
                 tf.summary.scalar('accuracy', accuracy)
@@ -144,7 +146,13 @@ if __name__ == '__main__':
             tf.train.LoggingTensorHook(
                 logtensors,
                 every_n_iter=log_steps
-            )
+            ),
+            # hook to initialize data iterators
+            # iterator are initialized by placeholders
+            # so we need to feed them during init
+            IteratorInitializerHook(lambda s: s.run(
+                training_init_op
+            ))
         ]
 
         with tf.train.SingularMonitoredSession(
@@ -172,7 +180,13 @@ if __name__ == '__main__':
             tf.train.LoggingTensorHook(
                 logtensors,
                 every_n_iter=1
-            )
+            ),
+            # hook to initialize data iterators
+            # iterator are initialized by placeholders
+            # so we need to feed them during init
+            IteratorInitializerHook(lambda s: s.run(
+                testing_init_op
+            ))
         ]
 
         with tf.train.SingularMonitoredSession(
