@@ -22,6 +22,8 @@ import numpy as np
 from six.moves import urllib
 import tensorflow as tf
 
+import multiprocessing
+
 
 def read32(bytestream):
     """Read 4 bytes from bytestream as an unsigned 32-bit integer."""
@@ -96,9 +98,11 @@ def dataset(directory, images_file, labels_file):
         return tf.to_int32(label)
 
     images = tf.data.FixedLengthRecordDataset(
-        images_file, 28 * 28, header_bytes=16).map(decode_image)
+        images_file, 28 * 28, header_bytes=16).map(
+        decode_image, num_parallel_calls=multiprocessing.cpu_count())
     labels = tf.data.FixedLengthRecordDataset(
-        labels_file, 1, header_bytes=8).map(decode_label)
+        labels_file, 1, header_bytes=8).map(
+        decode_label, num_parallel_calls=multiprocessing.cpu_count())
     return tf.data.Dataset.zip((images, labels))
 
 
