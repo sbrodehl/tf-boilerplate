@@ -53,7 +53,7 @@ if __name__ == '__main__':
         parser = argparse.ArgumentParser()
         parser.add_argument("input", type=str, help="input folder")
         parser.add_argument("--logdir", type=str, help="log folder")
-        parser.add_argument("--dataset", type=str, default="examples.mnist", help="dataset used")
+        parser.add_argument("--dataset", type=str, default="data.mnist", help="dataset used")
         args = parser.parse_args()
 
         # import data
