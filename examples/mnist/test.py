@@ -5,7 +5,7 @@ import time
 from tqdm import tqdm
 
 from template import *
-from download import dataset
+from .download import dataset
 
 
 class MNISTSampler(DataSampler):
@@ -91,8 +91,10 @@ if __name__ == '__main__':
 
         with tf.name_scope("network"):
             net = network(*train_batch)
+
         with tf.name_scope("loss"):
             loss = lossfn(net, *train_batch)
+
         with tf.name_scope("train"):
             with tf.name_scope('accuracy'):
                 with tf.name_scope('correct_prediction'):
@@ -104,7 +106,7 @@ if __name__ == '__main__':
         with tf.train.SingularMonitoredSession() as sess:
             print()
             print(80 * '#')
-            print('#' + 34 * ' ' + ' TRAINING ' + 34 * ' ' + '#')
+            print('#' + 34 * ' ' + ' TRAINING ' + 35 * ' ' + '#')
             print(80 * '#')
             accuracy_total = 0
             pbar = tqdm(total=NUMEXAMPLES / BATCH_SIZE * EPOCHS, desc="Training", leave=True)
