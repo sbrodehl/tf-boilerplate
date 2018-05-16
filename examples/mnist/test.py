@@ -1,5 +1,7 @@
 import sys, os
 sys.path.insert(0, os.path.abspath('.'))
+import time
+from tqdm import tqdm
 
 from template import *
 from download import dataset
@@ -18,12 +20,8 @@ class MNISTSampler(DataSampler):
       return dataset(str(self.data_dir), 't10k-images-idx3-ubyte', 't10k-labels-idx1-ubyte')
 
 
-def network(data):
+def network(data, labels_one_hot):
     data_format = 'channels_last'
-    if data_format == 'channels_first':
-        input_shape = [1, 28, 28]
-    else:
-      assert data_format == 'channels_last'
     input_shape = [28, 28, 1]
 
     l = tf.keras.layers
@@ -53,66 +51,90 @@ def network(data):
               l.Dense(1024, activation=tf.nn.relu),
               l.Dropout(0.4),
               l.Dense(10)
-              ])(data[0])
-    # return data[0]
+              ])(data)
 
-def loss(batch,logits):
-    return tf.losses.sparse_softmax_cross_entropy(labels=batch[1], logits=logits)
+def lossfn(net_out,data,labels_one_hot):
+    with tf.name_scope('cross_entropy'):
+        return tf.losses.sparse_softmax_cross_entropy(labels=labels_one_hot, logits=net_out)
 
 
 if __name__ == '__main__':
 
-    import argparse
+    try:
+        import argparse
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("input", help="input folder")
-    args = parser.parse_args()
+        parser = argparse.ArgumentParser()
+        parser.add_argument("input", help="input folder")
+        args = parser.parse_args()
 
-    sampler = MNISTSampler(args.input)
+        sampler = MNISTSampler(args.input)
+        NUMEXAMPLES = 60000
+        BATCH_SIZE = 64
+        EPOCHS = 1
 
-    train_ds = sampler.training()
-    train_ds = train_ds.cache().shuffle(buffer_size=50000).batch(64)
-    train_ds = train_ds.repeat(5)
-    test_ds = sampler.testing()
-    # val_ds = sampler.validation()
+        train_ds = sampler.training()
+        train_ds = train_ds.cache().shuffle(buffer_size=NUMEXAMPLES).batch(BATCH_SIZE)
+        train_ds = train_ds.repeat(EPOCHS)
+        test_ds = sampler.testing()
+        # val_ds = sampler.validation()
 
-    train_iter = train_ds.make_one_shot_iterator()
-    test_iter = test_ds.make_one_shot_iterator()
-    # val_iter = val_ds.make_one_shot_iterator()
+        train_iter = train_ds.make_one_shot_iterator()
+        test_iter = test_ds.make_one_shot_iterator()
+        # val_iter = val_ds.make_one_shot_iterator()
 
-    train_batch = train_iter.get_next()
-    test_batch = test_iter.get_next()
-    # val_batch = val_iter.get_next()
+        train_batch = train_iter.get_next()
+        test_batch = test_iter.get_next()
+        # val_batch = val_iter.get_next()
 
-    net = network(train_batch)
-    optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
-    do_train_batch = optimizer.minimize(loss(train_batch,net), tf.train.get_or_create_global_step())
-    # est = tf.estimator.EstimatorSpec(
-    #     mode=tf.estimator.ModeKeys.TRAIN,
-    #     loss=loss,
-    #     train_op=do_train_batch
-    # mnist_classifier = tf.estimator.Estimator(
-    #   model_fn=est,
-    #   # model_dir=flags_obj.model_dir,
-    #   # params={
-    #       # 'data_format': data_format,
-    #       # 'multi_gpu': flags_obj.multi_gpu
-    #  # }
-    # )
+        with tf.name_scope("network"):
+            net = network(*train_batch)
+        with tf.name_scope("loss"):
+            loss = lossfn(net,*train_batch)
+        with tf.name_scope("train"):
+            with tf.name_scope('accuracy'):
+                with tf.name_scope('correct_prediction'):
+                    correct_prediction = tf.equal(tf.argmax(net, 1), tf.cast(train_batch[1],tf.int64))
+                accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+            optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
+            do_train_batch = optimizer.minimize(loss, tf.train.get_or_create_global_step())
 
-    with tf.train.SingularMonitoredSession() as sess:
-        print(80 * '#')
-        print(35 * '#' + ' TRAINING ' + 35 * '#')
-        print(80 * '#')
-        while not sess.should_stop():
-            data, label, meta = sess.run(do_train_batch)
-            print(label)
+        with tf.train.SingularMonitoredSession() as sess:
+            print()
+            print(80 * '#')
+            print('#' + 34 * ' ' + ' TRAINING ' + 34 * ' ' + '#')
+            print(80 * '#')
+            accuracy_total = 0
+            pbar = tqdm(total=NUMEXAMPLES/BATCH_SIZE*EPOCHS, desc="Training", leave=True)
+            while not sess.should_stop():
+                accuracy_res, _ = sess.run([accuracy, do_train_batch])
+                accuracy_total += accuracy_res
+                pbar.update(1)
+                pbar.set_description('Accuracy %f' % accuracy_res)
+                # print(sess.run(tf.train.get_or_create_global_step()))
+                # print("Accuracy:",accuracy_res)
+        accuracy_total /= pbar.n
+        print()
+        print("Total Train Accuracy:",accuracy_total)
 
-    # with tf.train.SingularMonitoredSession() as sess:
-    #     print(80 * '#')
-    #     print(35 * '#' + ' TESTING ' + 36 * '#')
-    #     print(80 * '#')
-    #     while not sess.should_stop():
-    #         data, label, meta = sess.run(test_batch)
-    #         print(label)
+        with tf.train.SingularMonitoredSession() as sess:
+            print()
+            print(80 * '#')
+            print('#' + 34 * ' ' + ' TESTING ' + 34 * ' ' + '#')
+            print(80 * '#')
+            accuracy_total = 0
+            pbar = tqdm(total=NUMEXAMPLES/BATCH_SIZE*EPOCHS, desc="Training", leave=True)
+            while not sess.should_stop():
+                accuracy_res, _ = sess.run([accuracy, do_train_batch])
+                accuracy_total += accuracy_res
+                pbar.update(1)
+                pbar.set_description('Accuracy %f' % accuracy_res)
+                # print(sess.run(tf.train.get_or_create_global_step()))
+                # print("Accuracy:",accuracy_res)
+        accuracy_total /= pbar.n
+        print()
+        print("Total Test Accuracy:",accuracy_total)
+
+    except KeyboardInterrupt:
+        pass
+
 
