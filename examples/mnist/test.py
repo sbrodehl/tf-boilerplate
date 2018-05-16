@@ -66,8 +66,12 @@ if __name__ == '__main__':
     try:
         import argparse
 
+        # enable tf logging, show DEBUG output
+        tf.logging.set_verbosity(tf.logging.DEBUG)
+
         parser = argparse.ArgumentParser()
         parser.add_argument("input", help="input folder")
+        parser.add_argument("--logdir", help="log folder")
         args = parser.parse_args()
 
         sampler = MNISTSampler(args.input)
@@ -102,27 +106,53 @@ if __name__ == '__main__':
             with tf.name_scope('accuracy'):
                 with tf.name_scope('correct_prediction'):
                     correct_prediction = tf.equal(tf.argmax(net, 1), tf.cast(train_batch[1], tf.int64))
+                # define a summary for the accuracy
                 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+                tf.summary.scalar('accuracy', accuracy)
             optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
             do_train_batch = optimizer.minimize(loss, tf.train.get_or_create_global_step())
 
-        with tf.train.SingularMonitoredSession() as sess:
+        # define logging and saver
+        log_steps = 2  # log every 2nd step
+        save_mins = 5  # save every 5 min
+        # evaluate logging directory
+        logdir = args.logdir if args.logdir else "/tmp/example-logdir"
+        # evaluate these tensors periodically
+        logtensors = {
+            "step": tf.train.get_or_create_global_step(),
+            "accuracy": accuracy
+        }
+
+        # define all hooks
+        hks = [
+            # hook to save the summaries
+            tf.train.SummarySaverHook(
+                save_steps=log_steps,
+                summary_op=tf.summary.merge_all(),
+                output_dir=logdir
+            ),
+            # hook to save the model
+            tf.train.CheckpointSaverHook(
+                logdir,
+                save_secs=60 * save_mins
+            ),
+            # hook to get logger output
+            tf.train.LoggingTensorHook(
+                logtensors,
+                every_n_iter=log_steps
+            )
+        ]
+
+        with tf.train.SingularMonitoredSession(
+            hooks=hks,  # list of all hooks
+            # checkpoint_dir=logdir  # restores checkpoint and continues training
+        ) as sess:
             print()
             print(80 * '#')
             print('#' + 34 * ' ' + ' TRAINING ' + 34 * ' ' + '#')
             print(80 * '#')
-            accuracy_total = 0
-            pbar = tqdm(total=NUMEXAMPLES / BATCH_SIZE * EPOCHS, desc="Training", leave=True)
             while not sess.should_stop():
-                accuracy_res, _ = sess.run([accuracy, do_train_batch])
-                accuracy_total += accuracy_res
-                pbar.update(1)
-                pbar.set_description('Accuracy %f' % accuracy_res)
-                # print(sess.run(tf.train.get_or_create_global_step()))
-                # print("Accuracy:",accuracy_res)
-        accuracy_total /= pbar.n
-        print()
-        print("Total Train Accuracy:", accuracy_total)
+                _ = sess.run(do_train_batch)
 
         with tf.train.SingularMonitoredSession() as sess:
             print()
