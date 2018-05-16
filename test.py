@@ -51,9 +51,35 @@ if __name__ == '__main__':
         tf.logging.set_verbosity(tf.logging.DEBUG)
 
         parser = argparse.ArgumentParser()
-        parser.add_argument("input", type=str, help="input folder")
-        parser.add_argument("--logdir", type=str, help="log folder")
-        parser.add_argument("--dataset", type=str, default="data.mnist", help="dataset used")
+        parser.add_argument(
+            "input", type=str, help="input folder"
+        )
+        # training
+        parser.add_argument(
+            "--dataset", type=str, default="data.mnist",
+            help="dataset used"
+        )
+        parser.add_argument(
+            "--epoch", type=int, default=5,
+            help="training epochs"
+        )
+        parser.add_argument(
+            "--batchsize", type=int, default=64,
+            help="batch size"
+        )
+        # logging / saving
+        parser.add_argument(
+            "--logdir", type=str, default="/tmp/tf.dataset.template.log",
+            help="log folder"
+        )
+        parser.add_argument(
+            "--save_mins", dest="save_mins", default=5, type=int,
+            help="""Save the graph and summaries of once every N steps."""
+        )
+        parser.add_argument(
+            "--log_steps", dest="log_steps", default=2, type=int,
+            help="""Log the values of once every N steps."""
+        )
         args = parser.parse_args()
 
         # import data
@@ -61,8 +87,8 @@ if __name__ == '__main__':
         sampler = dataset.DataSampler(args.input)
 
         NUMEXAMPLES = 60000
-        BATCH_SIZE = 64
-        EPOCHS = 1
+        BATCH_SIZE = args.batchsize
+        EPOCHS = args.epoch
 
         # define training dataset
         train_ds = sampler.training()
@@ -108,11 +134,6 @@ if __name__ == '__main__':
         # TRAINING #
         #          #
 
-        # define logging and saver
-        log_steps = 2  # log every 2nd step
-        save_mins = 5  # save every 5 min
-        # evaluate logging directory
-        logdir = args.logdir if args.logdir else "/tmp/example-logdir"
         # evaluate these tensors periodically
         logtensors = {
             "step": tf.train.get_or_create_global_step(),
@@ -123,19 +144,19 @@ if __name__ == '__main__':
         hks = [
             # hook to save the summaries
             tf.train.SummarySaverHook(
-                save_steps=log_steps,
+                save_steps=args.log_steps,
                 summary_op=tf.summary.merge_all(),
-                output_dir=logdir
+                output_dir=args.logdir
             ),
             # hook to save the model
             tf.train.CheckpointSaverHook(
-                logdir,
-                save_secs=60 * save_mins
+                args.logdir,
+                save_secs=60 * args.save_mins
             ),
             # hook to get logger output
             tf.train.LoggingTensorHook(
                 logtensors,
-                every_n_iter=log_steps
+                every_n_iter=args.log_steps
             ),
             # hook to initialize data iterators
             # iterator are initialized by placeholders
@@ -147,7 +168,7 @@ if __name__ == '__main__':
 
         with tf.train.SingularMonitoredSession(
             hooks=hks,  # list of all hooks
-            # checkpoint_dir=logdir  # restores checkpoint and continues training
+            # checkpoint_dir=args.logdir  # restores checkpoint and continues training
         ) as sess:
             print(80 * '#')
             print('#' + 34 * ' ' + ' TRAINING ' + 34 * ' ' + '#')
@@ -181,7 +202,7 @@ if __name__ == '__main__':
 
         with tf.train.SingularMonitoredSession(
                 hooks=hks,  # list of all hooks
-                checkpoint_dir=logdir  # restores checkpoint
+                checkpoint_dir=args.logdir  # restores checkpoint
         ) as sess:
             print(80 * '#')
             print('#' + 34 * ' ' + ' TESTING ' + 35 * ' ' + '#')
