@@ -1,5 +1,5 @@
 # tf-boilerplate
-TensorFlow boilerplate code using Dataset and MonitoredSession
+TensorFlow boilerplate code using Dataset and MonitoredTrainingSession
 
 ## Getting Started
 
