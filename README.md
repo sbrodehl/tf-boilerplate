@@ -19,7 +19,28 @@ The current version requires in particular the following libraries / versions.
 * [Python 3](https://www.python.org/downloads/)
 * [TensorFlow v1.8](https://github.com/tensorflow/tensorflow)
 
-###
+### Usage
+
+To run a simple CNN on MNIST use the following command
+
+```bash
+python3 tfbp.py --dataset mnist --model cnn 
+```
+
+which produces the following output
+
+```bash
+tba.
+```
+
+Run `python3 tfbp.py --help` to see a complete list of command line arguments.
+
+All python modules in [/data](/data) can be used as datasets,
+and all python modules in [/model](/model) can be used as models.
+
+Currently we provide MNIST and CIFAR10 datasets, feel free to contribute others as well!
+
+The CNN model is simply for educational purpose.
 
 ## Features
 
