@@ -19,7 +19,7 @@ if __name__ == '__main__':
         )
         # model
         parser.add_argument(
-            "--model", type=str, default="model.mnist",
+            "--model", type=str, default="model.cnn",
             help="model used"
         )
         # training
