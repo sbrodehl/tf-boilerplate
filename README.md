@@ -104,7 +104,7 @@ Here is a (probably incomplete) list of resources, please contribute!
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.  
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.  
 Feel free to open a PR or issue, we are happy to help!
 
 ## Versioning
@@ -120,4 +120,4 @@ For the versions available, see the [tags on this repository](https://github.com
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Acknowledgement
-The Dataset-handlers are taken from the [tensorflow/models](https://github.com/tensorflow/models) repository.
+The dataset-handlers are taken from the [tensorflow/models](https://github.com/tensorflow/models) repository.
