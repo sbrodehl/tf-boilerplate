@@ -1,4 +1,3 @@
-
 # tf-boilerplate
 ![python-3 badge](https://img.shields.io/badge/python-3-brightgreen.svg) ![TensorFlow-1.8 badge](https://img.shields.io/badge/TensorFlow-1.8-brightgreen.svg)
 
