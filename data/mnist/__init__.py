@@ -26,7 +26,6 @@ import multiprocessing
 from template import BaseDataSampler
 
 
-
 def read32(bytestream):
     """Read 4 bytes from bytestream as an unsigned 32-bit integer."""
     dt = np.dtype(np.uint32).newbyteorder('>')
@@ -42,8 +41,8 @@ def check_image_file_header(filename):
     cols = read32(f)
     if magic != 2051:
         raise ValueError('Invalid magic number %d in MNIST file %s' % (magic, f.name))
-        if rows != 28 or cols != 28:
-            raise ValueError('Invalid MNIST file %s: Expected 28x28 images, found %dx%d' % (f.name, rows, cols))
+    if rows != 28 or cols != 28:
+        raise ValueError('Invalid MNIST file %s: Expected 28x28 images, found %dx%d' % (f.name, rows, cols))
 
 
 def check_labels_file_header(filename):
@@ -115,3 +114,6 @@ class DataSampler(BaseDataSampler):
     def testing(self):
         """tf.data.Dataset object for MNIST test data."""
         return dataset(str(self.data_dir), 't10k-images-idx3-ubyte', 't10k-labels-idx1-ubyte')
+
+    def validation(self):
+        raise NotImplementedError
