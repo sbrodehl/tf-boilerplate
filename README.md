@@ -78,7 +78,7 @@ At the end, the model is evaluated using the testing dataset.
 
 ### tf.data API
 
-To build flexible and efficient input pipelines we make use of the tf.data API.
+To build flexible and efficient input pipelines we make use of the [`tf.data` API](https://www.tensorflow.org/api_docs/python/tf/data).
 
 We introduce a simple `DataSampler` class, which has the abstract methods `training()`, `testing()` and `validation()`.
 These methods must be implemented for each new dataset, and will be used during the training loop.
@@ -90,10 +90,11 @@ See the [MNIST example](data/mnist/__init__.py#L103).
 
 ### tf.train API
 
-The tf.data API works well with the tf.train API for distributed execution, especially `tf.train.MonitoredSession`.
+The tf.data API works well with the tf.train API for distributed execution, especially [`tf.train.MonitoredTrainingSession`](https://www.tensorflow.org/api_docs/python/tf/train/MonitoredSession).
 The class `MonitoredSession` provides a `tf.Session`-like object that handles initialization, recovery and hooks.
 
-For distributed settings, use `tf.train.MonitoredSession`, if not, `tf.train.SingularMonitoredSession` is recommended.
+For distributed settings, use [`tf.train.MonitoredTrainingSession`](https://www.tensorflow.org/api_docs/python/tf/train/MonitoredSession),
+if not, [`tf.train.SingularMonitoredSession`](https://www.tensorflow.org/api_docs/python/tf/train/SingularMonitoredSession) is recommended.
 For now, we use the class `SingularMonitoredSession`, as it provides all the goodies we need for the tf.data API.
 
 If needed, the `SingularMonitoredSession` can be replaced with `MonitoredSession`.
