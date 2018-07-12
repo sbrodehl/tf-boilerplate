@@ -24,21 +24,42 @@ The current version requires in particular the following libraries / versions.
 To run a simple CNN on MNIST use the following command
 
 ```bash
-python3 tfbp.py --dataset mnist --model cnn 
+python3 tfbp.py --dataset data.mnist --model model.cnn
 ```
 
 which produces the following output
 
-```bash
-tba.
+```
+$ python3 tfbp.py --dataset data.mnist --model model.cnn
+Downloading https://storage.googleapis.com/cvdf-datasets/mnist/train-images-idx3-ubyte.gz to /tmp/tmpsw_g1ad9.gz
+Downloading https://storage.googleapis.com/cvdf-datasets/mnist/train-labels-idx1-ubyte.gz to /tmp/tmpwrbbj9qq.gz
+Downloading https://storage.googleapis.com/cvdf-datasets/mnist/t10k-images-idx3-ubyte.gz to /tmp/tmp6w2dezra.gz
+Downloading https://storage.googleapis.com/cvdf-datasets/mnist/t10k-labels-idx1-ubyte.gz to /tmp/tmpm_pr5i0j.gz
+INFO:tensorflow:Create CheckpointSaverHook.
+INFO:tensorflow:Graph was finalized.
+INFO:tensorflow:Running local_init_op.
+INFO:tensorflow:Done running local_init_op.
+################################################################################
+#                                   TRAINING                                   #
+################################################################################
+INFO:tensorflow:Saving checkpoints for 1 into /tmp/tf-boilerplate-log/model.ckpt.
+INFO:tensorflow:step = 0, accuracy = 0.125
+INFO:tensorflow:step = 10, accuracy = 0.09375 (0.006 sec)
+INFO:tensorflow:step = 20, accuracy = 0.5625 (0.006 sec)
+INFO:tensorflow:step = 30, accuracy = 0.78125 (0.006 sec)
+INFO:tensorflow:step = 40, accuracy = 0.828125 (0.005 sec)
+INFO:tensorflow:step = 50, accuracy = 0.9375 (0.005 sec)
+INFO:tensorflow:step = 60, accuracy = 0.921875 (0.005 sec)
+INFO:tensorflow:step = 70, accuracy = 0.90625 (0.006 sec)
+INFO:tensorflow:step = 80, accuracy = 0.9375 (0.005 sec)
+INFO:tensorflow:step = 90, accuracy = 0.890625 (0.007 sec)
+INFO:tensorflow:step = 100, accuracy = 0.953125 (0.005 sec)
+...
 ```
 
 Run `python3 tfbp.py --help` to see a complete list of command line arguments.
 
-All python modules in [/data](/data) can be used as datasets,
-and all python modules in [/model](/model) can be used as models.
-
-Currently we provide MNIST and CIFAR10 datasets, feel free to contribute others as well!
+Currently we provide tf.data wrappers for [MNIST](http://yann.lecun.com/exdb/mnist/) and [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html), feel free to contribute others as well!
 
 The CNN model is simply for educational purpose.
 
