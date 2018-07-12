@@ -88,7 +88,7 @@ For an overview to the tf.data API see the [Importing Data Guide](https://www.te
 
 See the [MNIST example](data/mnist/__init__.py#L103).
 
-### tf.train.MonitoredTrainingSession API
+### tf.train API
 
 The tf.data API works well with the tf.train API for distributed execution, especially `tf.train.MonitoredSession`.
 The class `MonitoredSession` provides a `tf.Session`-like object that handles initialization, recovery and hooks.
