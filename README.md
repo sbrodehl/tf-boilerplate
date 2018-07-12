@@ -1,8 +1,8 @@
-# tf-boilerplate
+# tf-boilerplate (tfbp)
 ![python-3 badge](https://img.shields.io/badge/python-3-brightgreen.svg) ![TensorFlow-1.8 badge](https://img.shields.io/badge/TensorFlow-1.8-brightgreen.svg)
 
-TensorFlow boilerplate code using the [tf.data API](https://youtu.be/uIcqeP7MFH0) 
-and the [tf.train.MonitoredTrainingSession API](https://youtu.be/-h0cWBiQ8s8) 
+TensorFlow boilerplate code using the [`tf.data` API](https://www.tensorflow.org/api_docs/python/tf/data) 
+and the [`tf.train.MonitoredTrainingSession` API](https://www.tensorflow.org/api_docs/python/tf/train/MonitoredSession) 
 to build flexible and efficient input pipelines with simplified training 
 in a distributed setting.
 
@@ -58,7 +58,9 @@ INFO:tensorflow:step = 100, accuracy = 0.953125 (0.005 sec)
 
 Run `python3 tfbp.py --help` to see a complete list of command line arguments.
 
-Currently we provide tf.data wrappers for [MNIST](http://yann.lecun.com/exdb/mnist/) and [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html), feel free to contribute others as well!
+Currently we provide tf.data wrappers for [MNIST](http://yann.lecun.com/exdb/mnist/)
+and [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html),
+feel free to contribute others as well!
 
 The CNN model is simply for educational purpose.
 
@@ -68,9 +70,67 @@ Here is a short introduction to the used TensorFlow APIs.
 
 For more information see the [references section](#references).
 
+The code is structured very modular, all *models* and *datasets* are dynamically 
+imported as modules, given the `--dataset` and `--model` argument.
+Then, `tfbp.py` runs a basic training loop using the training dataset
+to evaluate the `lossfn`, and minimizes the loss using the `AdamOptimizer`.
+At the end, the model is evaluated using the testing dataset.
+
 ### tf.data API
 
+To build flexible and efficient input pipelines we make use of the tf.data API.
+
+We introduce a simple `DataSampler` class, which has the abstract methods `training()`, `testing()` and `validation()`.
+These methods must be implemented for each new dataset, and will be used during the training loop.
+
+Any type of `tf.data.Dataset` can be returned, but e.g. `batch_size` and `epochs` will be set during a later stage by `tfbp.py`.
+For an overview to the tf.data API see the [Importing Data Guide](https://www.tensorflow.org/guide/datasets).  
+
+See the [MNIST example](data/mnist/__init__.py#L103).
+
 ### tf.train.MonitoredTrainingSession API
+
+The tf.data API works well with the tf.train API for distributed execution, especially `tf.train.MonitoredSession`.
+The class `MonitoredSession` provides a `tf.Session`-like object that handles initialization, recovery and hooks.
+
+For distributed settings, use `tf.train.MonitoredSession`, if not, `tf.train.SingularMonitoredSession` is recommended.
+For now, we use the class `SingularMonitoredSession`, as it provides all the goodies we need for the tf.data API.
+
+If needed, the `SingularMonitoredSession` can be replaced with `MonitoredSession`.
+
+Here is a basic example:
+```python
+# define a dataset
+dataset = tf.data.Dataset(...).batch(32).repeat(5)
+data = dataset.make_one_shot_iterator().get_next()
+
+# define model, loss and optimizer
+loss = network(data)
+train_op = tf.train.AdamOptimizer().minimize(loss)
+
+# SingularMonitoredSession example
+# checkpoints and summaries are saved periodically 
+saver_hook = CheckpointSaverHook(...)
+summary_hook = SummarySaverHook(...)
+with SingularMonitoredSession(hooks=[saver_hook, summary_hook]) as sess:
+  while not sess.should_stop():
+    sess.run(train_op)
+```
+
+Parameters like `batch_size` and `epoch` are implicit set via the Dataset.
+Various hooks can be used to evaluate / process tensors during training, see [Training -> Training Hooks](https://www.tensorflow.org/api_guides/python/train#Training_Hooks)
+
+For example
+- `LoggingTensorHook` to log different tensors (e.g. current step, time or metrics)
+- `CheckpointSaverHook` to save the model parameters
+- `SummarySaverHook` to save summaries
+
+Logging the current step and accuracy, the command line output will look like (from the example above)
+```
+INFO:tensorflow:step = 70, accuracy = 0.90625 (0.006 sec)
+```
+
+For an overview see [Importing Data Guide - Using high-level APIs](https://www.tensorflow.org/guide/datasets#using_high_level_apis).
 
 ## References
 
