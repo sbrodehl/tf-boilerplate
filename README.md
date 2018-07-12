@@ -1,6 +1,6 @@
 
 # tf-boilerplate
-![](https://img.shields.io/badge/Python-3-brightgreen.svg) ![](https://img.shields.io/badge/Tensorflow-1.8-brightgreen.svg)
+![python-3 badge](https://img.shields.io/badge/python-3-brightgreen.svg) ![TensorFlow-1.8 badge](https://img.shields.io/badge/TensorFlow-1.8-brightgreen.svg)
 
 TensorFlow boilerplate code using the [tf.data API](https://youtu.be/uIcqeP7MFH0) 
 and the [tf.train.MonitoredTrainingSession API](https://youtu.be/-h0cWBiQ8s8) 
