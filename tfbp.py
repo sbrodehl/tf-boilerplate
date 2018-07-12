@@ -19,7 +19,7 @@ if __name__ == '__main__':
         )
         # model
         parser.add_argument(
-            "--model", type=str, default="model.mnist",
+            "--model", type=str, default="model.cnn",
             help="model used"
         )
         # training
@@ -62,13 +62,12 @@ if __name__ == '__main__':
         network = networks.network
         lossfn = losses.lossfn
 
-        NUMEXAMPLES = 60000
         BATCH_SIZE = args.batchsize
         EPOCHS = args.epoch
 
         # define training dataset
         train_ds = sampler.training()
-        train_ds = train_ds.cache().shuffle(buffer_size=NUMEXAMPLES).batch(BATCH_SIZE)
+        train_ds = train_ds.cache().shuffle(4 * BATCH_SIZE).batch(BATCH_SIZE)
         train_ds = train_ds.repeat(EPOCHS)
 
         # define test dataset
