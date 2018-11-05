@@ -1,4 +1,4 @@
-from template.misc import IteratorInitializerHook
+from template.misc import IteratorInitializerHook, OneTimeSummarySaverHook
 
 import tensorflow as tf
 
@@ -49,6 +49,23 @@ if __name__ == '__main__':
             help="""Log the values of once every N steps."""
         )
         args = parser.parse_args()
+
+        # add description text to your log
+        tf.add_to_collection("SUMMARIES_ONCE", tf.summary.text("settings", tf.constant("""
+Experiment
+==========
+
+Any [markdown code](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet) can be used to describe this experiment.
+For instance, you can find the automatically generated used settings of this run below.
+
+
+Current Settings
+----------------
+
+| Argument | Value |
+| -------- | ----- |
+"""+"\n".join(["| **"+i+"** | `"+str(k)+"` |" for i,k in vars(args).items()])
+        ), collections="SUMMARIES_ONCE"))
 
         # import data
         dataset = importlib.import_module(args.dataset)
@@ -132,6 +149,10 @@ if __name__ == '__main__':
             tf.train.LoggingTensorHook(
                 logtensors,
                 every_n_iter=args.log_steps
+            ),
+            OneTimeSummarySaverHook(
+                summary_op=tf.summary.merge_all("SUMMARIES_ONCE"),
+                output_dir=args.logdir
             ),
             # hook to initialize data iterators
             # iterator are initialized by placeholders

@@ -125,6 +125,7 @@ For example
 - `LoggingTensorHook` to log different tensors (e.g. current step, time or metrics)
 - `CheckpointSaverHook` to save the model parameters
 - `SummarySaverHook` to save summaries
+- `OneTimeSummarySaverHook` to save summaries exactly once. (This can come handy to save the parameters of your run inside of your log and, thus, can be checked after training directly in tensorboard).
 
 Logging the current step and accuracy, the command line output will look like (from the example above)
 ```
