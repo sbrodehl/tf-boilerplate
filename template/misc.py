@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tensorflow.python.training.session_run_hook import SessionRunArgs
 
 
 # Define data loaders #####################################
@@ -15,16 +16,19 @@ class IteratorInitializerHook(tf.train.SessionRunHook):
         self.iterator_initializer_func(session)
 
 
-# One-Time SummarySaver
-# (for instance to saving the source code as text)
 class OneTimeSummarySaverHook(tf.train.SummarySaverHook):
-    """Saves summaries every N steps."""
+    """One-Time SummarySaver
+    Saves summaries every N steps.
+
+    E.g. can be used for saving the source code as text.
+    """
 
     def __init__(self, output_dir=None, summary_writer=None, scaffold=None, summary_op=None):
         self._summary_op = summary_op
         self._summary_writer = summary_writer
         self._output_dir = output_dir
         self._scaffold = scaffold
+
         class emptytimer():
             def update_last_triggered_step(*args,**kwargs):
                 pass
@@ -49,3 +53,22 @@ class OneTimeSummarySaverHook(tf.train.SummarySaverHook):
         self._done = True
 
 
+def ExperimentTemplate() -> str:
+    """A template with Markdown syntax.
+
+    :return: str with Markdown template
+    """
+    return """
+Experiment
+==========
+
+Any [markdown code](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet) can be used to describe this experiment.
+For instance, you can find the automatically generated used settings of this run below.
+
+
+Current Settings
+----------------
+
+| Argument | Value |
+| -------- | ----- |
+"""

@@ -1,4 +1,4 @@
-from template.misc import IteratorInitializerHook, OneTimeSummarySaverHook
+from template.misc import IteratorInitializerHook, OneTimeSummarySaverHook, ExperimentTemplate
 
 import tensorflow as tf
 
@@ -19,20 +19,20 @@ if __name__ == '__main__':
         )
         # model
         parser.add_argument(
-            "--model", type=str, default="model.cnn",
+            "--model", type=str, default="model.rcnn",
             help="model used"
         )
         # training
         parser.add_argument(
-            "--dataset", type=str, default="data.mnist",
+            "--dataset", type=str, default="data.fashionmnist",
             help="dataset used"
         )
         parser.add_argument(
-            "--epoch", type=int, default=5,
+            "--epoch", type=int, default=3,
             help="training epochs"
         )
         parser.add_argument(
-            "--batchsize", type=int, default=64,
+            "--batchsize", type=int, default=256,
             help="batch size"
         )
         # logging / saving
@@ -45,26 +45,14 @@ if __name__ == '__main__':
             help="""Save the graph and summaries of once every N steps."""
         )
         parser.add_argument(
-            "--log_steps", dest="log_steps", default=2, type=int,
+            "--log_steps", dest="log_steps", default=50, type=int,
             help="""Log the values of once every N steps."""
         )
         args = parser.parse_args()
 
         # add description text to your log
-        tf.add_to_collection("SUMMARIES_ONCE", tf.summary.text("settings", tf.constant("""
-Experiment
-==========
-
-Any [markdown code](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet) can be used to describe this experiment.
-For instance, you can find the automatically generated used settings of this run below.
-
-
-Current Settings
-----------------
-
-| Argument | Value |
-| -------- | ----- |
-"""+"\n".join(["| **"+i+"** | `"+str(k)+"` |" for i,k in vars(args).items()])
+        tf.add_to_collection("SUMMARIES_ONCE", tf.summary.text("settings", tf.constant(
+            ExperimentTemplate() + "\n".join(["| **" + i + "** | `" + str(k) + "` |" for i, k in vars(args).items()])
         ), collections="SUMMARIES_ONCE"))
 
         # import data
@@ -77,19 +65,19 @@ Current Settings
         networks = importlib.import_module('.'.join([args.model, "network"]))
         # define network and loss function
         network = networks.network
-        lossfn = losses.lossfn
+        loss_fn = losses.loss_fn
 
         BATCH_SIZE = args.batchsize
         EPOCHS = args.epoch
 
         # define training dataset
         train_ds = sampler.training()
-        train_ds = train_ds.cache().shuffle(4 * BATCH_SIZE).batch(BATCH_SIZE)
+        train_ds = train_ds.batch(BATCH_SIZE)
         train_ds = train_ds.repeat(EPOCHS)
 
         # define test dataset
         test_ds = sampler.testing()
-        test_ds = test_ds.batch(1)
+        test_ds = test_ds.batch(BATCH_SIZE * 2)
 
         # define validation dataset
         # val_ds = sampler.validation()
@@ -102,15 +90,15 @@ Current Settings
                                                    train_ds.output_shapes)
         data = iterator.get_next()
 
-        # define all iterator initializer
+        # define all iterator initializers
         training_init_op = iterator.make_initializer(train_ds)
-        testing_init_op = iterator.make_initializer(train_ds)  # here we reuse the train_ds
+        testing_init_op = iterator.make_initializer(test_ds)
 
         with tf.name_scope("network"):
             net = network(*data)
 
         with tf.name_scope("loss"):
-            loss = lossfn(net, *data)
+            loss = loss_fn(net, *data)
 
         with tf.name_scope("train"):
             with tf.name_scope('accuracy'):
@@ -122,12 +110,12 @@ Current Settings
             optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
             do_train_batch = optimizer.minimize(loss, tf.train.get_or_create_global_step())
 
-        #          #
+        # ======== #
         # TRAINING #
-        #          #
+        # ======== #
 
         # evaluate these tensors periodically
-        logtensors = {
+        log_tensors = {
             "step": tf.train.get_or_create_global_step(),
             "accuracy": accuracy
         }
@@ -147,7 +135,7 @@ Current Settings
             ),
             # hook to get logger output
             tf.train.LoggingTensorHook(
-                logtensors,
+                log_tensors,
                 every_n_iter=args.log_steps
             ),
             OneTimeSummarySaverHook(
@@ -172,12 +160,12 @@ Current Settings
             while not sess.should_stop():
                 _ = sess.run(do_train_batch)
 
-        #         #
+        # ======= #
         # TESTING #
-        #         #
+        # ======= #
 
         # evaluate these tensors periodically
-        logtensors = {
+        log_tensors = {
             "accuracy": accuracy
         }
 
@@ -185,8 +173,8 @@ Current Settings
         hks = [
             # hook to get logger output
             tf.train.LoggingTensorHook(
-                logtensors,
-                every_n_iter=1
+                log_tensors,
+                every_n_iter=5
             ),
             # hook to initialize data iterators
             # iterator are initialized by placeholders
@@ -196,6 +184,9 @@ Current Settings
             ))
         ]
 
+        # save all
+        accrcy = []
+
         with tf.train.SingularMonitoredSession(
                 hooks=hks,  # list of all hooks
                 checkpoint_dir=args.logdir  # restores checkpoint
@@ -204,7 +195,12 @@ Current Settings
             print('#' + 34 * ' ' + ' TESTING ' + 35 * ' ' + '#')
             print(80 * '#')
             while not sess.should_stop():
-                _ = sess.run(accuracy)
+                _accrcy = sess.run(accuracy)
+                accrcy.append(_accrcy)
+
+        import numpy as np
+        accrcy = np.array(accrcy)
+        print("Final Mean Accuracy:", np.mean(accrcy))
 
     # catch KeyboardInterrupt error message
     # IT WAS INTENTIONAL
