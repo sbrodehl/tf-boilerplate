@@ -200,7 +200,7 @@ if __name__ == '__main__':
 
         import numpy as np
         accrcy = np.array(accrcy)
-        print("Mean accuracy:", np.mean(accrcy))
+        print("Final Mean Accuracy:", np.mean(accrcy))
 
     # catch KeyboardInterrupt error message
     # IT WAS INTENTIONAL
