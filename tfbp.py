@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
         # define test dataset
         test_ds = sampler.testing()
-        test_ds = test_ds.batch(1)
+        test_ds = test_ds.batch(BATCH_SIZE * 2)
 
         # define validation dataset
         # val_ds = sampler.validation()
@@ -110,9 +110,9 @@ if __name__ == '__main__':
             optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
             do_train_batch = optimizer.minimize(loss, tf.train.get_or_create_global_step())
 
-        #          #
+        # ======== #
         # TRAINING #
-        #          #
+        # ======== #
 
         # evaluate these tensors periodically
         logtensors = {
@@ -160,9 +160,9 @@ if __name__ == '__main__':
             while not sess.should_stop():
                 _ = sess.run(do_train_batch)
 
-        #         #
+        # ======= #
         # TESTING #
-        #         #
+        # ======= #
 
         # evaluate these tensors periodically
         logtensors = {
@@ -184,6 +184,9 @@ if __name__ == '__main__':
             ))
         ]
 
+        # save all
+        accrcy = []
+
         with tf.train.SingularMonitoredSession(
                 hooks=hks,  # list of all hooks
                 checkpoint_dir=args.logdir  # restores checkpoint
@@ -192,7 +195,12 @@ if __name__ == '__main__':
             print('#' + 34 * ' ' + ' TESTING ' + 35 * ' ' + '#')
             print(80 * '#')
             while not sess.should_stop():
-                _ = sess.run(accuracy)
+                _accrcy = sess.run(accuracy)
+                accrcy.append(_accrcy)
+
+        import numpy as np
+        accrcy = np.array(accrcy)
+        print("Mean accuracy:", np.mean(accrcy))
 
     # catch KeyboardInterrupt error message
     # IT WAS INTENTIONAL
