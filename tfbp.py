@@ -72,7 +72,7 @@ if __name__ == '__main__':
 
         # define training dataset
         train_ds = sampler.training()
-        train_ds = train_ds.cache().shuffle(4 * BATCH_SIZE).batch(BATCH_SIZE)
+        train_ds = train_ds.batch(BATCH_SIZE)
         train_ds = train_ds.repeat(EPOCHS)
 
         # define test dataset
