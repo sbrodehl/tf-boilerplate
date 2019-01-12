@@ -90,9 +90,9 @@ if __name__ == '__main__':
                                                    train_ds.output_shapes)
         data = iterator.get_next()
 
-        # define all iterator initializer
+        # define all iterator initializers
         training_init_op = iterator.make_initializer(train_ds)
-        testing_init_op = iterator.make_initializer(train_ds)  # here we reuse the train_ds
+        testing_init_op = iterator.make_initializer(test_ds)
 
         with tf.name_scope("network"):
             net = network(*data)
