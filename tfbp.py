@@ -65,7 +65,7 @@ if __name__ == '__main__':
         networks = importlib.import_module('.'.join([args.model, "network"]))
         # define network and loss function
         network = networks.network
-        lossfn = losses.lossfn
+        loss_fn = losses.loss_fn
 
         BATCH_SIZE = args.batchsize
         EPOCHS = args.epoch
@@ -98,7 +98,7 @@ if __name__ == '__main__':
             net = network(*data)
 
         with tf.name_scope("loss"):
-            loss = lossfn(net, *data)
+            loss = loss_fn(net, *data)
 
         with tf.name_scope("train"):
             with tf.name_scope('accuracy'):
@@ -115,7 +115,7 @@ if __name__ == '__main__':
         # ======== #
 
         # evaluate these tensors periodically
-        logtensors = {
+        log_tensors = {
             "step": tf.train.get_or_create_global_step(),
             "accuracy": accuracy
         }
@@ -135,7 +135,7 @@ if __name__ == '__main__':
             ),
             # hook to get logger output
             tf.train.LoggingTensorHook(
-                logtensors,
+                log_tensors,
                 every_n_iter=args.log_steps
             ),
             OneTimeSummarySaverHook(
@@ -165,7 +165,7 @@ if __name__ == '__main__':
         # ======= #
 
         # evaluate these tensors periodically
-        logtensors = {
+        log_tensors = {
             "accuracy": accuracy
         }
 
@@ -173,7 +173,7 @@ if __name__ == '__main__':
         hks = [
             # hook to get logger output
             tf.train.LoggingTensorHook(
-                logtensors,
+                log_tensors,
                 every_n_iter=1
             ),
             # hook to initialize data iterators
