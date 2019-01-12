@@ -1,5 +1,5 @@
 # tf-boilerplate (tfbp)
-![python-3 badge](https://img.shields.io/badge/python-3-brightgreen.svg) ![TensorFlow-1.10 badge](https://img.shields.io/badge/TensorFlow-1.10-brightgreen.svg)
+![python-3 badge](https://img.shields.io/badge/python-3-brightgreen.svg) ![TensorFlow-1.10 badge](https://img.shields.io/badge/TensorFlow-1.12-brightgreen.svg)
 
 TensorFlow boilerplate code using the [`tf.data` API](https://www.tensorflow.org/api_docs/python/tf/data) 
 and the [`tf.train.MonitoredTrainingSession` API](https://www.tensorflow.org/api_docs/python/tf/train/MonitoredSession) 
@@ -15,8 +15,8 @@ and therefore makes it easy to compare various models, datasets and parameter se
 
 The current version requires in particular the following libraries / versions.
 
-* [Python 3](https://www.python.org/downloads/)
-* [TensorFlow v1.10](https://github.com/tensorflow/tensorflow)
+* [Python3](https://www.python.org/downloads/)
+* [TensorFlow v1.12](https://github.com/tensorflow/tensorflow)
 
 ### Usage
 
@@ -58,7 +58,7 @@ INFO:tensorflow:step = 100, accuracy = 0.953125 (0.005 sec)
 
 Run `python3 tfbp.py --help` to see a complete list of command line arguments.
 
-Currently we provide tf.data wrappers for [MNIST](http://yann.lecun.com/exdb/mnist/)
+Currently we provide tf.data wrappers for [MNIST](http://yann.lecun.com/exdb/mnist/), [Fashion MNIST](https://github.com/zalandoresearch/fashion-mnist)
 and [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html),
 feel free to contribute others as well!
 
