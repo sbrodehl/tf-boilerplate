@@ -45,7 +45,7 @@ if __name__ == '__main__':
             help="""Save the graph and summaries of once every N steps."""
         )
         parser.add_argument(
-            "--log_steps", dest="log_steps", default=2, type=int,
+            "--log_steps", dest="log_steps", default=50, type=int,
             help="""Log the values of once every N steps."""
         )
         args = parser.parse_args()
