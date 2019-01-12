@@ -1,4 +1,4 @@
-from template.misc import IteratorInitializerHook, OneTimeSummarySaverHook
+from template.misc import IteratorInitializerHook, OneTimeSummarySaverHook, ExperimentTemplate
 
 import tensorflow as tf
 
@@ -51,20 +51,8 @@ if __name__ == '__main__':
         args = parser.parse_args()
 
         # add description text to your log
-        tf.add_to_collection("SUMMARIES_ONCE", tf.summary.text("settings", tf.constant("""
-Experiment
-==========
-
-Any [markdown code](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet) can be used to describe this experiment.
-For instance, you can find the automatically generated used settings of this run below.
-
-
-Current Settings
-----------------
-
-| Argument | Value |
-| -------- | ----- |
-"""+"\n".join(["| **"+i+"** | `"+str(k)+"` |" for i,k in vars(args).items()])
+        tf.add_to_collection("SUMMARIES_ONCE", tf.summary.text("settings", tf.constant(
+            ExperimentTemplate() + "\n".join(["| **" + i + "** | `" + str(k) + "` |" for i, k in vars(args).items()])
         ), collections="SUMMARIES_ONCE"))
 
         # import data

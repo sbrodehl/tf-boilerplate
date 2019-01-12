@@ -49,3 +49,22 @@ class OneTimeSummarySaverHook(tf.train.SummarySaverHook):
         self._done = True
 
 
+def ExperimentTemplate() -> str:
+    """A template with Markdown syntax.
+
+    :return: str with Markdown template
+    """
+    return """
+Experiment
+==========
+
+Any [markdown code](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet) can be used to describe this experiment.
+For instance, you can find the automatically generated used settings of this run below.
+
+
+Current Settings
+----------------
+
+| Argument | Value |
+| -------- | ----- |
+"""
