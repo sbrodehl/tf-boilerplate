@@ -19,20 +19,20 @@ if __name__ == '__main__':
         )
         # model
         parser.add_argument(
-            "--model", type=str, default="model.cnn",
+            "--model", type=str, default="model.rcnn",
             help="model used"
         )
         # training
         parser.add_argument(
-            "--dataset", type=str, default="data.mnist",
+            "--dataset", type=str, default="data.fashionmnist",
             help="dataset used"
         )
         parser.add_argument(
-            "--epoch", type=int, default=5,
+            "--epoch", type=int, default=3,
             help="training epochs"
         )
         parser.add_argument(
-            "--batchsize", type=int, default=64,
+            "--batchsize", type=int, default=256,
             help="batch size"
         )
         # logging / saving
