@@ -174,7 +174,7 @@ if __name__ == '__main__':
             # hook to get logger output
             tf.train.LoggingTensorHook(
                 log_tensors,
-                every_n_iter=1
+                every_n_iter=5
             ),
             # hook to initialize data iterators
             # iterator are initialized by placeholders
