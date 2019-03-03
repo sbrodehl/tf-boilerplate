@@ -10,7 +10,7 @@ https://github.com/CECAML/school_nierstein_2018/blob/master/Convnet%20TF.ipynb
 
 def prelu(net):
     alpha = tf.Variable(0.0, dtype=net.dtype)
-    return tf.nn.leaky_relu(net, alpha)
+    return tf.maximum(alpha * net, net)
 
 
 def residual_conv_block(net, num_filters, kernel_size, stride, is_training=True):
