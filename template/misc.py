@@ -15,6 +15,32 @@ class IteratorInitializerHook(tf.train.SessionRunHook):
         """Initialise the iterator after the session has been created."""
         self.iterator_initializer_func(session)
 
+# redefine summarysaverhook (for more accurate saving)
+class CustomSummarySaverHook(tf.train.SummarySaverHook):
+    """Saves summaries every N steps."""
+
+    def __init__(self,save_steps,*args,**kwargs):
+        super(CustomSummarySaverHook, self).__init__(*args,save_steps=save_steps,**kwargs)
+
+    def begin(self):
+        super().begin()
+        self._timer.reset()
+        self._iter_count = 0
+
+    def before_run(self, run_context):	# pylint: disable=unused-argument
+        self._request_summary = ((self._iter_count + 1) % self.save_steps == 0)
+        requests = {"global_step": self._global_step_tensor}
+        if self._request_summary:
+            if self._get_summary_op() is not None:
+                # print(self._iter_count)
+                requests["summary"] = self._get_summary_op()
+
+        return SessionRunArgs(requests)
+
+    def after_run(self, run_context, run_values):
+        super().after_run(run_context,run_values)
+        self._iter_count += 1
+
 
 class OneTimeSummarySaverHook(tf.train.SummarySaverHook):
     """One-Time SummarySaver
