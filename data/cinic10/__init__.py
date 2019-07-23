@@ -4,7 +4,7 @@ See https://datashare.is.ed.ac.uk/handle/10283/3192
 """
 import os
 import tensorflow as tf
-from template import BaseDataSampler
+from data import BaseDataSampler
 from .generate_cinic10_tfrecords import main as download
 
 HEIGHT = 32
@@ -103,20 +103,13 @@ class Cinic10DataSet(object):
         return 90000
 
 
-class DataSampler(BaseDataSampler):
+class CINIC10(BaseDataSampler):
 
-    def __init__(self, data_dir):
-        data_dir = os.path.join(data_dir,"cinic10")
-        self.data_dir = data_dir
-
-        # download and extract
-        filepath = os.path.join(self.data_dir, "train.tfrecords")
-        if not tf.gfile.Exists(self.data_dir):
-            tf.gfile.MakeDirs(self.data_dir)
-        if not tf.gfile.Exists(filepath):
-            print("Downloading to "+filepath)
-            print("Please wait...")
-            download(self.data_dir)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.data_dir = None
+        self.parser.add_argument("--datadir", type=str, default=self.data_dir,
+                                 help="data training directory", required=True)
 
     def training(self):
         return Cinic10DataSet(self.data_dir, subset='train', use_distortion=False).make_batch()
@@ -124,5 +117,30 @@ class DataSampler(BaseDataSampler):
     def testing(self):
         return Cinic10DataSet(self.data_dir, subset='eval', use_distortion=False).make_batch()
 
+    def setup(self):
+        data_dir = os.path.join(self.data_dir, "cinic10")
+        self.data_dir = data_dir
 
+        # download and extract
+        filepath = os.path.join(self.data_dir, "train.tfrecords")
+        if not tf.gfile.Exists(self.data_dir):
+            tf.gfile.MakeDirs(self.data_dir)
+        if not tf.gfile.Exists(filepath):
+            print("Downloading to " + filepath)
+            print("Please wait...")
+            download(self.data_dir)
 
+    def validation(self):
+        raise NotImplementedError
+
+    def get_parameters(self):
+        raise NotImplementedError
+
+    def get_output_types(self) -> tuple:
+        raise NotImplementedError
+
+    def get_output_shapes(self) -> tuple:
+        raise NotImplementedError
+
+    def visualize(self, data, *args, **kwargs) -> bool:
+        raise NotImplementedError

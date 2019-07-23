@@ -4,7 +4,7 @@ See http://www.cs.toronto.edu/~kriz/cifar.html.
 """
 import os
 import tensorflow as tf
-from template import BaseDataSampler
+from data import BaseDataSampler
 from .generate_cifar10_tfrecords import main as download
 
 HEIGHT = 32
@@ -108,10 +108,21 @@ class Cifar10DataSet(object):
             raise ValueError('Invalid data subset "%s"' % subset)
 
 
-class DataSampler(BaseDataSampler):
+class CIFAR10(BaseDataSampler):
 
-    def __init__(self, data_dir):
-        self.data_dir = data_dir
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.data_dir = None
+        self.parser.add_argument("--datadir", type=str, default=self.data_dir,
+                                 help="data training directory", required=True)
+
+    def training(self):
+        return Cifar10DataSet(self.data_dir, subset='train', use_distortion=False).make_batch()
+
+    def testing(self):
+        return Cifar10DataSet(self.data_dir, subset='eval', use_distortion=False).make_batch()
+
+    def setup(self):
 
         # download and extract
         filepath = os.path.join(self.data_dir, "train.tfrecords")
@@ -122,11 +133,17 @@ class DataSampler(BaseDataSampler):
             print("Please wait...")
             download(self.data_dir)
 
-    def training(self):
-        return Cifar10DataSet(self.data_dir, subset='train', use_distortion=False).make_batch()
+    def validation(self):
+        raise NotImplementedError
 
-    def testing(self):
-        return Cifar10DataSet(self.data_dir, subset='eval', use_distortion=False).make_batch()
+    def get_parameters(self):
+        raise NotImplementedError
 
+    def get_output_types(self) -> tuple:
+        raise NotImplementedError
 
+    def get_output_shapes(self) -> tuple:
+        raise NotImplementedError
 
+    def visualize(self, data, *args, **kwargs) -> bool:
+        raise NotImplementedError

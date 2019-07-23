@@ -1,24 +1,16 @@
-from template import BaseDataSampler
+from data import BaseDataSampler
 
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 
 
-class DataSampler(BaseDataSampler):
+class MNIST(BaseDataSampler):
 
-    def __init__(self, data_dir):
-        super().__init__(data_dir)
-
-        mnist = keras.datasets.fashion_mnist
-        (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
-        # normalize the values to [0,1] and of type float32
-        train_images = train_images.astype(np.float32)
-        test_images = test_images.astype(np.float32)
-        train_images = train_images / 255.0
-        test_images = test_images / 255.0
-        self.training_data = (train_images, train_labels.astype(np.int64))  # self.get_one_hot(train_labels, 10))
-        self.testing_data = (test_images, test_labels.astype(np.int64))  # self.get_one_hot(test_labels, 10))
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.training_data = None
+        self.testing_data = None
 
     @staticmethod
     def get_one_hot(targets, nb_classes):
@@ -35,3 +27,26 @@ class DataSampler(BaseDataSampler):
 
     def validation(self):
         raise NotImplementedError("No validation data available for MNIST")
+
+    def setup(self):
+        mnist = keras.datasets.fashion_mnist
+        (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+        # normalize the values to [0,1] and of type float32
+        train_images = train_images.astype(np.float32)
+        test_images = test_images.astype(np.float32)
+        train_images = train_images / 255.0
+        test_images = test_images / 255.0
+        self.training_data = (train_images, train_labels.astype(np.int64))  # self.get_one_hot(train_labels, 10))
+        self.testing_data = (test_images, test_labels.astype(np.int64))  # self.get_one_hot(test_labels, 10))
+
+    def get_parameters(self):
+        raise NotImplementedError
+
+    def get_output_types(self) -> tuple:
+        raise NotImplementedError
+
+    def get_output_shapes(self) -> tuple:
+        raise NotImplementedError
+
+    def visualize(self, data, *args, **kwargs) -> bool:
+        raise NotImplementedError

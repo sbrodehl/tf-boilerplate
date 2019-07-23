@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-def network(data, labels_one_hot):
+def network(data, labels_one_hot, mode=tf.estimator.ModeKeys.TRAIN, classes=None):
     data_format = 'channels_last'
     input_shape = [28, 28, 1]
 

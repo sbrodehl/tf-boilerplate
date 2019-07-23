@@ -29,7 +29,7 @@ def residual_conv_block(net, num_filters, kernel_size, stride, is_training=True)
     return prelu(tf.concat((net, inp), axis=-1))
 
 
-def network(X, Y):
+def network(X, Y, mode=tf.estimator.ModeKeys.TRAIN, classes=None):
     net = tf.identity(X)
 
     net = residual_conv_block(net, 16, 3, 2)
