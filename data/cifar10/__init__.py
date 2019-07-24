@@ -10,7 +10,7 @@ from .generate_cifar10_tfrecords import main as download
 HEIGHT = 32
 WIDTH = 32
 DEPTH = 3
-datashape = [HEIGHT,WIDTH,DEPTH]
+datashape = [HEIGHT, WIDTH, DEPTH]
 numexamples = 50000
 
 
@@ -40,18 +40,18 @@ class Cifar10DataSet(object):
         # See http://www.cs.toronto.edu/~kriz/cifar.html for a description of the
         # input format.
         features = tf.parse_single_example(
-                serialized_example,
-                features={
-                        'image': tf.FixedLenFeature([], tf.string),
-                        'label': tf.FixedLenFeature([], tf.int64),
-                })
+            serialized_example,
+            features={
+                'image': tf.FixedLenFeature([], tf.string),
+                'label': tf.FixedLenFeature([], tf.int64),
+            })
         image = tf.decode_raw(features['image'], tf.uint8)
         image.set_shape([DEPTH * HEIGHT * WIDTH])
 
         # Reshape from [depth * height * width] to [depth, height, width].
         image = tf.cast(
-                tf.transpose(tf.reshape(image, [DEPTH, HEIGHT, WIDTH]), [1, 2, 0]),
-                tf.float32)
+            tf.transpose(tf.reshape(image, [DEPTH, HEIGHT, WIDTH]), [1, 2, 0]),
+            tf.float32)
         label = tf.cast(features['label'], tf.int32)
 
         # Custom preprocessing.
@@ -63,20 +63,17 @@ class Cifar10DataSet(object):
         """Read the images and labels from 'filenames'."""
         filenames = self.get_filenames()
         # Repeat infinitely.
-        dataset = tf.data.TFRecordDataset(filenames) #.repeat()
+        dataset = tf.data.TFRecordDataset(filenames)  # .repeat()
 
         # Parse records.
         # dataset = dataset.map(self.parser, num_threads=batch_size, output_buffer_size=2 * batch_size)
         dataset = dataset.map(self.parser)
 
-
         # Potentially shuffle records.
         # if self.subset == 'train':
-            # min_queue_examples = int(
-            #         Cifar10DataSet.num_examples_per_epoch(self.subset) * 0.4)
-            # Ensure that the capacity is sufficiently large to provide good random
-            # shuffling.
-            # dataset = dataset.shuffle(buffer_size=min_queue_examples + 3 * batch_size)
+        #     min_queue_examples = int(Cifar10DataSet.num_examples_per_epoch(self.subset) * 0.4)
+        #     Ensure that the capacity is sufficiently large to provide good random shuffling.
+        #     dataset = dataset.shuffle(buffer_size=min_queue_examples + 3 * batch_size)
 
         return dataset
 
@@ -129,7 +126,7 @@ class CIFAR10(BaseDataSampler):
         if not tf.gfile.Exists(self.data_dir):
             tf.gfile.MakeDirs(self.data_dir)
         if not tf.gfile.Exists(filepath):
-            print("Downloading to "+filepath)
+            print("Downloading to " + filepath)
             print("Please wait...")
             download(self.data_dir)
 
