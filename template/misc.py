@@ -15,6 +15,7 @@ class IteratorInitializerHook(tf.train.SessionRunHook):
         """Initialise the iterator after the session has been created."""
         self.iterator_initializer_func(session)
 
+
 # redefine summarysaverhook (for more accurate saving)
 class CustomSummarySaverHook(tf.train.SummarySaverHook):
     """Saves summaries every N steps."""
