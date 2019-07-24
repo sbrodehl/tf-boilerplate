@@ -10,7 +10,7 @@ from .generate_cinic10_tfrecords import main as download
 HEIGHT = 32
 WIDTH = 32
 DEPTH = 3
-datashape = [HEIGHT,WIDTH,DEPTH]
+datashape = [HEIGHT, WIDTH, DEPTH]
 numexamples = 270000
 cinic_mean = [0.47889522, 0.47227842, 0.43047404]
 cinic_std = [0.24205776, 0.23828046, 0.25874835]
@@ -42,11 +42,11 @@ class Cinic10DataSet(object):
         # See See https://datashare.is.ed.ac.uk/handle/10283/3192 for a description of the
         # input format.
         features = tf.parse_single_example(
-                serialized_example,
-                features={
-                        'image': tf.FixedLenFeature([], tf.string),
-                        'label': tf.FixedLenFeature([], tf.int64),
-                })
+            serialized_example,
+            features={
+                'image': tf.FixedLenFeature([], tf.string),
+                'label': tf.FixedLenFeature([], tf.int64),
+            })
         # image = tf.decode_raw(features['image'], tf.uint8)
         # image.set_shape([DEPTH * HEIGHT * WIDTH])
         image = tf.image.decode_png(features['image'], channels=3, dtype=tf.uint8)
@@ -65,20 +65,17 @@ class Cinic10DataSet(object):
         """Read the images and labels from 'filenames'."""
         filenames = self.get_filenames()
         # Repeat infinitely.
-        dataset = tf.data.TFRecordDataset(filenames) #.repeat()
+        dataset = tf.data.TFRecordDataset(filenames)  # .repeat()
 
         # Parse records.
         # dataset = dataset.map(self.parser, num_threads=batch_size, output_buffer_size=2 * batch_size)
         dataset = dataset.map(self.parser)
 
-
         # Potentially shuffle records.
         # if self.subset == 'train':
-            # min_queue_examples = int(
-            #         Cinic10DataSet.num_examples_per_epoch(self.subset) * 0.4)
-            # Ensure that the capacity is sufficiently large to provide good random
-            # shuffling.
-            # dataset = dataset.shuffle(buffer_size=min_queue_examples + 3 * batch_size)
+        #   min_queue_examples = int(Cinic10DataSet.num_examples_per_epoch(self.subset) * 0.4)
+        #     Ensure that the capacity is sufficiently large to provide good random shuffling.
+        #     dataset = dataset.shuffle(buffer_size=min_queue_examples + 3 * batch_size)
 
         return dataset
 
