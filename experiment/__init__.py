@@ -57,13 +57,6 @@ class BaseExperiment(object):
         self.prevrun = False
         self.loss_monitoring = []
 
-        # A reinitializable iterator is defined by its structure.
-        # We could use the `output_types` and `output_shapes` properties of
-        # either `training dataset` or `validation dataset` here,
-        # because they are compatible (the same type and shape)
-        self.tf_iterator = tf.compat.v1.data.Iterator.from_structure(self.sampler.get_output_types(),
-                                                                     self.sampler.get_output_shapes())
-
     @register_experiment_run
     def training(self):
         pass
