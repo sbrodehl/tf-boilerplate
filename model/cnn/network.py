@@ -31,5 +31,5 @@ def network(data, labels_one_hot, mode=tf.estimator.ModeKeys.TRAIN, classes=None
             l.Flatten(),
             l.Dense(1024, activation=tf.nn.relu),
             l.Dropout(0.4),
-            l.Dense(10)
+            l.Dense(classes)
         ])(data)
