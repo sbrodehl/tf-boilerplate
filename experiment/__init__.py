@@ -9,8 +9,6 @@ from data import BaseDataSampler
 from loss import BaseLoss
 from model import BaseModel
 
-import tensorflow as tf
-
 
 _EXP_OPTIONS = dict()
 
