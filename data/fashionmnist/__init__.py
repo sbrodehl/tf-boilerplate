@@ -38,8 +38,8 @@ class FashionMNIST(BaseDataSampler):
         test_images = test_images / 255.0
         train_images = np.expand_dims(train_images, 3)
         test_images = np.expand_dims(test_images, 3)
-        self.training_data = (train_images, train_labels.astype(np.int64))  # self.get_one_hot(train_labels, 10))
-        self.testing_data = (test_images, test_labels.astype(np.int64))  # self.get_one_hot(test_labels, 10))
+        self.training_data = (train_images, train_labels.astype(np.int64))
+        self.testing_data = (test_images, test_labels.astype(np.int64))
 
     def get_parameters(self):
         raise NotImplementedError
