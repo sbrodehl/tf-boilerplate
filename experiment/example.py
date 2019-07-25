@@ -4,7 +4,7 @@ from model import BaseModel
 from experiment import BaseExperiment
 
 
-class Classification(BaseExperiment):
+class Example(BaseExperiment):
     """Experiment which does things."""
 
     def __init__(self, sampler: BaseDataSampler, model: BaseModel, lossfn: BaseLoss):
