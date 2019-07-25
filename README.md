@@ -20,16 +20,77 @@ The current version requires in particular the following libraries / versions.
 
 ### Usage
 
-To run a simple RCNN on Fashion MNIST use the following command (which is the default)
+#### Package Structure
+
+The programm is split up into different (Python) packages, which are loaded by the main [tfbp.py](tfbp.py) just in time, just in sequence.
+
+The following packages exist, and are required:
+
+Package Path              | Class                                    | CLI argument(s)
+------------------------- | ---------------------------------------- | ---------------
+[data/](data)             | [BaseDataSampler](data/__init__.py)      | `-d/--data`
+[experiment/](experiment) | [BaseExperiment](experiment/__init__.py) | `-e/--experiment`, `-o/--option`
+[loss/](loss)             | [BaseLoss](loss/__init__.py)             | `-l/--loss`, `--loss-monitor` (optional)
+[model/](model)           | [BaseModel](model/__init__.py)           | `-m/--model`
+
+Each package itself can require additional arguments.
+
+##### `data` Package
+
+Currently, there are the following implementations of `BaseDataSampler`:
+
+- [CIFAR10](data/cifar10/__init__.py)
+
+- [CINIC10](data/cinic10/__init__.py)
+
+- [MNIST](data/mnist/__init__.py)
+
+- [Fashion MNIST](data/fashionmnist/__init__.py)
+
+##### `experiment` Package
+
+Currently, there are the following implementations of `BaseExperiment`:
+
+- [Example](experiment/example.py)
+
+##### `loss` Package
+
+Currently, there are the following implementations of `BaseLoss`:
+
+- [L2](loss/L2.py)
+
+##### `model` Package
+
+Currently, there are the following implementations of `BaseModel`:
+
+- [cnn](model/cnn/__init__.py)
+
+- [rcnn](model/rcnn/__init__.py)
+
+#### Basic Usage
+
+To run an experiment, the following CLI arguments are needed by the base classes (example output):
 
 ```bash
-python3 tfbp.py --dataset data.fashionmnist --model model.rcnn
-```
-
-which produces the following output:
-
-```
 $ python3 tfbp.py
+
+usage: tfbp [-h] -d {cifar10,cinic10,fashionmnist,mnist} -e {example} -o
+            {training,testing,validation,debug} -l {l2}
+            [--loss-monitor {l2} [{l2} ...]] -m {cnn,rcnn}
+```
+
+Set the required arguments to your desired values, and proceed:
+
+```
+$ python3 tfbp.py -d fashionmnist -l l2 -m rcnn -e example -o training
+```
+
+This loads the required packages and checks for additional, and required CLI arguments.
+When all arguments are set, the experiment will be run.
+
+In this case, the experiment does not do anything, only the dataset will be inistialized
+
+```
 Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/train-labels-idx1-ubyte.gz
 32768/29515 [=================================] - 0s 0us/step
 Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/train-images-idx3-ubyte.gz
@@ -38,42 +99,8 @@ Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-dataset
 8192/5148 [===============================================] - 0s 0us/step
 Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/t10k-images-idx3-ubyte.gz
 4423680/4422102 [==============================] - 0s 0us/step
-INFO:tensorflow:Create CheckpointSaverHook.
-INFO:tensorflow:Graph was finalized.
-INFO:tensorflow:Running local_init_op.
-INFO:tensorflow:Done running local_init_op.
-INFO:tensorflow:Saving checkpoints for 0 into /tmp/tf-boilerplate-log/model.ckpt.
-################################################################################
-#                                   TRAINING                                   #
-################################################################################
-INFO:tensorflow:accuracy = 0.1015625, step = 0
-INFO:tensorflow:accuracy = 0.8359375, step = 50 (0.896 sec)
-INFO:tensorflow:accuracy = 0.83203125, step = 100 (0.344 sec)
-INFO:tensorflow:accuracy = 0.859375, step = 150 (0.425 sec)
-INFO:tensorflow:accuracy = 0.8828125, step = 200 (0.362 sec)
-INFO:tensorflow:accuracy = 0.84375, step = 250 (0.379 sec)
-INFO:tensorflow:accuracy = 0.87109375, step = 300 (0.351 sec)
-INFO:tensorflow:accuracy = 0.86328125, step = 350 (0.320 sec)
-INFO:tensorflow:accuracy = 0.87109375, step = 400 (0.342 sec)
-INFO:tensorflow:accuracy = 0.86328125, step = 450 (0.384 sec)
-INFO:tensorflow:accuracy = 0.9140625, step = 500 (0.361 sec)
-INFO:tensorflow:accuracy = 0.90625, step = 550 (0.449 sec)
-INFO:tensorflow:accuracy = 0.89453125, step = 600 (0.476 sec)
-INFO:tensorflow:accuracy = 0.91015625, step = 650 (0.320 sec)
-INFO:tensorflow:accuracy = 0.89453125, step = 700 (0.383 sec)
-INFO:tensorflow:Saving checkpoints for 705 into /tmp/tf-boilerplate-log/model.ckpt.
-INFO:tensorflow:Graph was finalized.
-INFO:tensorflow:Restoring parameters from /tmp/tf-boilerplate-log/model.ckpt-705
-INFO:tensorflow:Running local_init_op.
-INFO:tensorflow:Done running local_init_op.
-################################################################################
-#                                   TESTING                                    #
-################################################################################
-INFO:tensorflow:accuracy = 0.8886719
-INFO:tensorflow:accuracy = 0.84765625 (0.018 sec)
-INFO:tensorflow:accuracy = 0.8769531 (0.017 sec)
-INFO:tensorflow:accuracy = 0.8769531 (0.017 sec)
-Final Mean Accuracy: 0.8743681
+
+Process finished with exit code 0
 ```
 
 Run `python3 tfbp.py --help` to see a complete list of command line arguments.
@@ -82,7 +109,7 @@ Currently we provide tf.data wrappers for [MNIST](http://yann.lecun.com/exdb/mni
 and [CIFAR10](https://www.cs.toronto.edu/~kriz/cifar.html),
 feel free to contribute others as well!
 
-The CNN model is simply for educational purpose.
+The RCNN and CNN models are simply for educational purpose.
 
 ## Features
 
